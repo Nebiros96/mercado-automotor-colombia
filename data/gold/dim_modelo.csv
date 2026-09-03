@@ -1,0 +1,143 @@
+id_modelo,id_marca,modelo
+1,1,Seagull
+2,1,Yuan Plus
+3,1,Yuan Up
+4,2,iCar 03
+5,3,Colorado
+6,3,Onix
+7,3,Sonic
+8,3,Spark EUV
+9,3,Tracker
+10,4,C3 Gasolina
+11,5,S05
+12,6,Ranger
+13,6,Territory
+14,7,Auman Power (BJ1186VLPH-5A)
+15,8,EX5
+16,9,Ora 5 SUV
+17,10,WR-V
+18,11,Grand i10
+19,11,Grand Metro Taxi
+20,11,HB20S
+21,11,Kona
+22,11,Tucson
+23,12,Avenger
+24,13,T880
+25,14,Ekotaxi
+26,14,EV2
+27,14,K3 (Cross+Sedán)
+28,14,Niro
+29,14,Picanto
+30,14,Soluto
+31,14,Sonet
+32,14,Sportage
+33,14,Stonic
+34,15,2
+35,15,3
+36,15,CX-30
+37,15,CX-5
+38,15,CX-50
+39,16,S5 EV
+40,17,Frontier
+41,17,Kait
+42,17,Kicks
+43,17,Qashqai
+44,17,Versa
+45,17,X-Trail e-Power
+46,18,2008
+47,19,Arkana
+48,19,Duster E-Tech
+49,19,Duster Nacional
+50,19,Kardian
+51,19,Koleos
+52,19,Kwid
+53,19,Logan
+54,19,Oroch
+55,20,Dzire
+56,20,Fronx
+57,20,Jimny
+58,20,S-Cross
+59,20,Swift
+60,21,Model 3
+61,21,Model Y
+62,22,Corolla Cross
+63,22,Corolla Sedan
+64,22,Fortuner
+65,22,Hilux
+66,22,Land Cruiser Prado
+67,22,RAV4
+68,22,Sequoia
+69,22,Yaris Cross
+70,22,Yaris Hatchback
+71,23,Nivus
+72,23,Polo
+73,23,T-Cross
+74,23,Tera
+75,23,Tiguan
+155,2,Tiggo 4 HEV
+157,3,NHR
+158,3,NKR
+159,3,NLR
+160,3,NQR
+167,7,FHR Cummins 3.1 toneladas (BJ1045VDJBA-F3)
+168,7,FPR Cummins 5 toneladas (BJ1078VEJEA-F3)
+169,7,FRR Cummins 6.9 toneladas (BJ1128VEJED-F3)
+173,11,Venue
+195,19,Duster Oroch
+196,19,Kangoo
+209,22,Corolla Sedán
+212,22,Prado
+214,22,Sequoia (importación gris)
+216,22,Yaris Híbrido
+222,48,JHR Largo (HFC1036KN EVI)
+223,48,JHR Power (HFC1036S)
+224,49,CHR Carrying Plus (JX1044TC6)
+313,17,V-Drive
+315,1,Dolphin
+318,8,EX2
+328,48,JHR Largo (HfFC1036KN EVI)
+338,69,X3
+343,70,700
+358,19,Stepway
+359,7,"FHR Cummins 3,1 toneladas (BJ1045VDJBA-F3)"
+361,3,Montana
+368,3,MS (Bus)
+370,22,Yaris HEV
+376,71,Crosstrek
+387,11,Grand I10
+390,14,Seltos
+403,2,Tiggo 4 Hev
+406,15,Cx-50
+413,4,C3
+424,17,Kicks Play
+426,17,X-Trail E-Power
+434,23,Taos
+437,3,N400
+440,3,Captiva Gasolina
+446,48,JHR Largo (hfc1036kn Evi)
+453,2,iCAR 03
+454,7,FHR Cummins 3.1 t (BJ1045VDJBA-F3)
+459,17,Kicks II
+470,7,"FRR Cummins 6,9 t (BJ1128VEJED-F3)"
+485,1,Song Plus
+496,10,HR-V
+507,5,S07
+525,72,Aion UT
+528,16,ZS
+541,75,"Cummins 6,9 toneladas (BJ1128VEJED-F3)"
+560,22,Corolla
+572,3,Captiva PHEV
+585,73,LR7D9-MAXEN
+587,7,"FHR XL 2,9 toneladas (BJ1045V9JB4-F1)"
+593,14,K3
+598,74,Box
+599,3,FRR
+604,11,Grand Taxi Metro
+612,49,CHR Largo (JX1044TC6)
+643,7,FHR Miler 2.7 Toneladas (BJ1044VAJB3-1A)
+649,2,Tiggo 7 MHEV
+660,73,LR7D9-Maxen
+661,76,Formentor
+668,2,Icar 03
+671,4,Basalt
+673,7,"FHR 2,8 Toneladas (BJ1045V9JB4-F1)"

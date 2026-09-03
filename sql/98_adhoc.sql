@@ -18,7 +18,7 @@ TRUNCATE TABLE stg_ventas_mensuales;
 
 
 -- Llamado de SP
-CALL cargar_ventas_mensuales(202601);
+CALL cargar_ventas_mensuales(202608);
 
 
 -- Consulta ad hoc

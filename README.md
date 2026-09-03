@@ -160,42 +160,86 @@ mercado-automotor-colombia/
     ├── 03_create_fact.sql
     ├── 04_create_fact_staging.sql
     ├── 05_etl_ventas_mensuales.sql
+    ├── 98_adhoc.sql
     └── 99_query_validacion.sql
 ```
 
 ### Archivos SQL
 
+Los scripts están numerados en orden de ejecución. Los archivos `01` a `05` construyen la base de datos y el proceso ETL. Los archivos `98` y `99` contienen consultas de operación y análisis.
+
+#### Estructura y carga (`01` – `05`)
+
 **`01_create_db.sql`**
 
-Creación de la base de datos del proyecto:
-
-```text
-mercado_automotor_colombia
-```
+Creación de la base de datos `mercado_automotor_co` con codificación UTF-8 y collation en español.
 
 **`02_create_dimensions.sql`**
 
-Creación y configuración de las dimensiones:
+Creación de las tres dimensiones del modelo:
 
-* `dim_fecha`
-* `dim_marca`
-* `dim_modelo`
+* `dim_marca` — catálogo de marcas con restricción `UNIQUE`.
+* `dim_modelo` — catálogo de modelos con clave foránea hacia `dim_marca` y restricción `UNIQUE` sobre la combinación marca-modelo.
+* `dim_fecha` — dimensión temporal generada automáticamente desde enero de 2020 hasta diciembre de 2030 con granularidad mensual.
 
 **`03_create_fact.sql`**
 
-Creación de la tabla de hechos `fact_ventas_mensuales`, incluyendo claves primarias, claves foráneas y restricciones.
+Creación de la tabla de hechos `fact_ventas_mensuales` con:
+
+* Clave primaria compuesta (`id_periodo`, `id_modelo`).
+* Claves foráneas hacia `dim_fecha` y `dim_modelo`.
+* Restricción `CHECK` para asegurar que las unidades vendidas no sean negativas.
 
 **`04_create_fact_staging.sql`**
 
-Creación de la tabla de staging utilizada para recibir los archivos CSV mensuales.
+Creación de la tabla de staging `stg_ventas_mensuales` con dos campos: `vehiculo` (texto con marca y modelo concatenados) y `unidades_vendidas`.
 
 **`05_etl_ventas_mensuales.sql`**
 
-Contiene el procedimiento almacenado `cargar_ventas_mensuales()`, responsable de validar y cargar la información desde staging hacia el modelo dimensional.
+Procedimiento almacenado `cargar_ventas_mensuales(p_id_periodo)` que ejecuta el proceso ETL completo:
+
+1. Valida que el período exista en `dim_fecha`.
+2. Valida que todas las marcas del CSV existan en `dim_marca` (las marcas nuevas detienen la carga).
+3. Inserta modelos nuevos en `dim_modelo` cuando la marca ya existe.
+4. Valida que todos los vehículos se hayan asociado correctamente a un modelo.
+5. Elimina registros previos del período (permite recarga).
+6. Inserta los registros del período en `fact_ventas_mensuales`.
+7. Muestra un resumen con la cantidad de registros cargados.
+
+#### Consultas de operación y análisis (`98` – `99`)
+
+**`98_adhoc.sql`**
+
+Consultas ad hoc utilizadas durante la operación del proyecto. Incluye:
+
+* Exploración de tablas dimensionales y de hechos.
+* Inserción manual de marcas nuevas en `dim_marca`.
+* Truncado de la tabla de staging antes de cada carga.
+* Invocación del procedimiento de carga.
+* Ranking de modelos por unidades vendidas con promedio mensual:
+
+```sql
+SELECT
+    da.marca,
+    dm.modelo,
+    SUM(fm.unidades_vendidas) AS unidades_totales,
+    SUM(fm.unidades_vendidas) / COUNT(DISTINCT(id_periodo)) AS uni_mes_prom,
+    COUNT(DISTINCT(id_periodo)) AS meses_totales
+FROM fact_ventas_mensuales AS fm
+LEFT JOIN dim_modelo AS dm
+    ON dm.id_modelo = fm.id_modelo
+LEFT JOIN dim_marca AS da
+    ON da.id_marca = dm.id_marca
+GROUP BY
+    dm.modelo,
+    da.marca
+ORDER BY
+    unidades_totales DESC;
+```
 
 **`99_query_validacion.sql`**
 
-Consultas utilizadas para verificar la información cargada y validar las relaciones entre hechos, modelos y marcas.
+Consulta de validación que reconstruye el nombre completo del vehículo (`marca + modelo`) a partir de las tablas del modelo dimensional, permitiendo verificar la integridad de la carga contra el archivo CSV original.
 
 ## Datos
 
@@ -209,24 +253,21 @@ data/fact_ventas_mensuales.csv
 
 El archivo contiene información consolidada de ventas mensuales por vehículo.
 
-## Tecnologías
+## Análisis disponibles
 
-* PostgreSQL
-* PL/pgSQL
-* pgAdmin 4
-* SQL
-* Git
-* GitHub
-* Power BI
+La estructura actual del modelo dimensional y las consultas existentes permiten realizar los siguientes análisis:
 
-## Posibles análisis
+### Implementados
 
-La estructura permite desarrollar posteriormente diferentes análisis del mercado automotor, entre ellos:
+* Ranking de modelos por unidades totales vendidas.
+* Promedio mensual de ventas por modelo.
+* Cantidad de meses con presencia por modelo.
+* Exploración y validación de la información cargada.
 
-* Evolución mensual de ventas.
-* Ranking de marcas.
-* Ranking de modelos.
-* Participación de mercado.
+### Posibles ampliaciones
+
+* Evolución mensual de ventas por marca o modelo.
+* Participación de mercado por marca.
 * Crecimiento mensual e interanual.
 * Evolución de modelos nuevos.
 * Análisis por segmento o fabricante.
