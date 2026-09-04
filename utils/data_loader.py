@@ -19,6 +19,7 @@ SELECT
     df.año_mes,
     da.id_marca,
     da.marca,
+    da.url_logo,
     dm.id_modelo,
     dm.modelo,
     fm.unidades_vendidas
@@ -55,7 +56,7 @@ def cargar_datos() -> pd.DataFrame:
     column_order = [
         "id_periodo", "año", "mes_numero", "mes_nombre", "año_mes",
         "trimestre", "semestre",
-        "id_marca", "marca", "id_modelo", "modelo", "marca_modelo",
+        "id_marca", "marca", "url_logo", "id_modelo", "modelo", "marca_modelo",
         "unidades_vendidas",
     ]
 

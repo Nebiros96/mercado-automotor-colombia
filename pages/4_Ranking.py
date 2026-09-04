@@ -22,8 +22,6 @@ rango = st.sidebar.select_slider(
 marcas_disponibles = ["Todas"] + sorted(df["marca"].unique())
 marca_filtro = st.sidebar.selectbox("Marca", marcas_disponibles)
 
-top_n = st.sidebar.slider("Cantidad de posiciones", min_value=5, max_value=50, value=20, step=5)
-
 nivel = st.sidebar.radio("Agrupar por", ["Marca-Modelo", "Marca", "Modelo"])
 
 # --- Aplicar filtros ---
@@ -37,7 +35,7 @@ if df_filtrado.empty:
     st.warning("No hay datos para los filtros seleccionados.")
     st.stop()
 
-# --- Calcular ranking ---
+# --- Calcular ranking completo ---
 if nivel == "Marca-Modelo":
     col_group = "marca_modelo"
 elif nivel == "Marca":
@@ -45,7 +43,7 @@ elif nivel == "Marca":
 else:
     col_group = "modelo"
 
-ranking = (
+ranking_completo = (
     df_filtrado.groupby(col_group, as_index=False)
     .agg(
         unidades_totales=("unidades_vendidas", "sum"),
@@ -53,10 +51,10 @@ ranking = (
         mejor_mes=("unidades_vendidas", "max"),
     )
 )
-ranking["promedio_mensual"] = (ranking["unidades_totales"] / ranking["meses_activos"]).round(0).astype(int)
-ranking = ranking.nlargest(top_n, "unidades_totales").reset_index(drop=True)
-ranking.index = ranking.index + 1
-ranking.index.name = "Posición"
+ranking_completo["promedio_mensual"] = (ranking_completo["unidades_totales"] / ranking_completo["meses_activos"]).round(0).astype(int)
+ranking_completo = ranking_completo.sort_values("unidades_totales", ascending=False).reset_index(drop=True)
+ranking_completo.index = ranking_completo.index + 1
+ranking_completo.index.name = "Posición"
 
 # --- KPIs del filtro ---
 total_filtrado = df_filtrado["unidades_vendidas"].sum()
@@ -65,17 +63,17 @@ periodos_filtrados = df_filtrado["id_periodo"].nunique()
 col1, col2, col3 = st.columns(3)
 col1.metric("Unidades en el rango", f"{total_filtrado:,.0f}")
 col2.metric("Períodos seleccionados", periodos_filtrados)
-col3.metric(f"Top {nivel}s mostrados", len(ranking))
+col3.metric(f"Total {nivel}s", len(ranking_completo))
 
 st.divider()
 
-# --- Gráfico de barras horizontal ---
-st.subheader(f"Top {len(ranking)} — {nivel}")
+# --- Gráfico top 20 ---
+st.subheader(f"Top 20 — {nivel}")
 
-ranking_chart = ranking.sort_values("unidades_totales", ascending=True)
+top_20 = ranking_completo.head(20).sort_values("unidades_totales", ascending=True)
 
 fig = px.bar(
-    ranking_chart,
+    top_20,
     x="unidades_totales",
     y=col_group,
     orientation="h",
@@ -88,17 +86,17 @@ fig.update_traces(texttemplate="%{text:,.0f}", textposition="outside")
 fig.update_layout(
     showlegend=False,
     coloraxis_showscale=False,
-    height=max(400, len(ranking) * 28),
+    height=max(400, len(top_20) * 28),
 )
 st.plotly_chart(fig, width="stretch")
 
 st.divider()
 
-# --- Tabla del ranking ---
-st.subheader("Tabla de ranking")
+# --- Tabla completa ---
+st.subheader("Tabla de ranking completa")
 
 st.dataframe(
-    ranking.rename(columns={
+    ranking_completo.rename(columns={
         col_group: nivel,
         "unidades_totales": "Unidades totales",
         "meses_activos": "Meses activos",
@@ -106,4 +104,5 @@ st.dataframe(
         "promedio_mensual": "Promedio mensual",
     }),
     width="stretch",
+    height=min(700, len(ranking_completo) * 35 + 50),
 )
