@@ -51,11 +51,11 @@ st.plotly_chart(fig_evol, width="stretch")
 
 st.divider()
 
-# --- Top 10 marcas ---
+# --- Top 10 marcas y modelos ---
 col_left, col_right = st.columns(2)
 
 with col_left:
-    st.subheader("Top 10 marcas por unidades totales")
+    st.subheader("Top 10 marcas")
 
     top_marcas = (
         df.groupby("marca", as_index=False)["unidades_vendidas"]
@@ -79,7 +79,7 @@ with col_left:
     st.plotly_chart(fig_marcas, width="stretch")
 
 with col_right:
-    st.subheader("Top 10 modelos por unidades totales")
+    st.subheader("Top 10 modelos")
 
     top_modelos = (
         df.groupby("marca_modelo", as_index=False)["unidades_vendidas"]
@@ -104,7 +104,7 @@ with col_right:
 
 st.divider()
 
-# --- Participación de mercado por marca ---
+# --- Participación de mercado por marca (barras) ---
 st.subheader("Participación de mercado por marca")
 
 participacion = (
@@ -114,25 +114,21 @@ participacion = (
 )
 participacion["participacion"] = (
     participacion["unidades_vendidas"] / participacion["unidades_vendidas"].sum() * 100
-)
+).round(1)
 
-top_n = 10
-otras = participacion.iloc[top_n:]
-top_part = participacion.iloc[:top_n].copy()
-if len(otras) > 0:
-    otras_row = pd.DataFrame({
-        "marca": ["Otras"],
-        "unidades_vendidas": [otras["unidades_vendidas"].sum()],
-        "participacion": [otras["participacion"].sum()],
-    })
-    top_part = pd.concat([top_part, otras_row], ignore_index=True)
-
-fig_pie = px.pie(
-    top_part,
-    values="unidades_vendidas",
-    names="marca",
-    hole=0.4,
+fig_part = px.bar(
+    participacion,
+    x="marca",
+    y="participacion",
+    text="participacion",
+    labels={"marca": "", "participacion": "Participación (%)"},
+    color="participacion",
+    color_continuous_scale="Tealgrn",
 )
-fig_pie.update_traces(textinfo="label+percent", textposition="outside")
-fig_pie.update_layout(showlegend=False)
-st.plotly_chart(fig_pie, width="stretch")
+fig_part.update_traces(texttemplate="%{text:.1f}%", textposition="outside")
+fig_part.update_layout(
+    showlegend=False,
+    coloraxis_showscale=False,
+    xaxis_tickangle=-45,
+)
+st.plotly_chart(fig_part, width="stretch")

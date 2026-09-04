@@ -9,23 +9,47 @@ st.title("Comparativa de Modelos")
 
 df = cargar_datos()
 
-# --- Sidebar: selectores ---
+# --- Sidebar: selectores de 2 modelos ---
 marcas_modelo = sorted(df["marca_modelo"].unique())
 
-seleccionados = st.sidebar.multiselect(
-    "Seleccioná modelos a comparar (máx. 5)",
-    marcas_modelo,
-    default=marcas_modelo[:2],
-    max_selections=5,
-)
+modelo_a = st.sidebar.selectbox("Modelo A", marcas_modelo, index=0)
+modelo_b = st.sidebar.selectbox("Modelo B", marcas_modelo, index=min(1, len(marcas_modelo) - 1))
 
-if len(seleccionados) < 2:
-    st.info("Seleccioná al menos 2 modelos en el panel lateral para comparar.")
+if modelo_a == modelo_b:
+    st.warning("Seleccioná dos modelos diferentes para comparar.")
     st.stop()
 
+seleccionados = [modelo_a, modelo_b]
 df_comp = df[df["marca_modelo"].isin(seleccionados)]
 
-# --- KPIs comparativos ---
+# --- Header con logos de marcas ---
+info_a = df_comp[df_comp["marca_modelo"] == modelo_a].iloc[0]
+info_b = df_comp[df_comp["marca_modelo"] == modelo_b].iloc[0]
+
+col_a, col_sep, col_b = st.columns([5, 1, 5])
+
+with col_a:
+    sub_logo_a, sub_name_a = st.columns([1, 4])
+    with sub_logo_a:
+        if pd.notna(info_a["url_logo"]):
+            st.image(info_a["url_logo"], width=60)
+    with sub_name_a:
+        st.subheader(modelo_a)
+
+with col_sep:
+    st.markdown("<h2 style='text-align: center; color: gray;'>vs</h2>", unsafe_allow_html=True)
+
+with col_b:
+    sub_logo_b, sub_name_b = st.columns([1, 4])
+    with sub_logo_b:
+        if pd.notna(info_b["url_logo"]):
+            st.image(info_b["url_logo"], width=60)
+    with sub_name_b:
+        st.subheader(modelo_b)
+
+st.divider()
+
+# --- Tabla resumen comparativa ---
 st.subheader("Resumen comparativo")
 
 resumen = (
@@ -34,6 +58,7 @@ resumen = (
         unidades_totales=("unidades_vendidas", "sum"),
         meses_activos=("id_periodo", "nunique"),
         mejor_mes=("unidades_vendidas", "max"),
+        peor_mes=("unidades_vendidas", "min"),
     )
 )
 resumen["promedio_mensual"] = (resumen["unidades_totales"] / resumen["meses_activos"]).round(0).astype(int)
@@ -46,6 +71,7 @@ st.dataframe(
         "unidades_totales": "Unidades totales",
         "meses_activos": "Meses activos",
         "mejor_mes": "Mejor mes",
+        "peor_mes": "Peor mes",
         "promedio_mensual": "Promedio mensual",
         "participacion": "Participación (%)",
     }).set_index("Modelo"),
@@ -69,8 +95,10 @@ fig_lineas = px.line(
     y="unidades_vendidas",
     color="marca_modelo",
     markers=True,
+    text="unidades_vendidas",
     labels={"año_mes": "Mes", "unidades_vendidas": "Unidades", "marca_modelo": "Modelo"},
 )
+fig_lineas.update_traces(textposition="top center", texttemplate="%{text:,.0f}")
 fig_lineas.update_layout(yaxis_title="Unidades vendidas", xaxis_title="")
 st.plotly_chart(fig_lineas, width="stretch")
 
@@ -91,27 +119,3 @@ fig_barras = px.bar(
 fig_barras.update_traces(texttemplate="%{text:,.0f}", textposition="outside")
 fig_barras.update_layout(yaxis_title="Unidades", xaxis_title="")
 st.plotly_chart(fig_barras, width="stretch")
-
-st.divider()
-
-# --- Acumulado total comparado ---
-st.subheader("Total acumulado")
-
-total_comp = (
-    df_comp.groupby("marca_modelo", as_index=False)["unidades_vendidas"]
-    .sum()
-    .sort_values("unidades_vendidas", ascending=True)
-)
-
-fig_total = px.bar(
-    total_comp,
-    x="unidades_vendidas",
-    y="marca_modelo",
-    orientation="h",
-    text="unidades_vendidas",
-    labels={"unidades_vendidas": "Unidades", "marca_modelo": ""},
-    color="marca_modelo",
-)
-fig_total.update_traces(texttemplate="%{text:,.0f}", textposition="outside")
-fig_total.update_layout(showlegend=False)
-st.plotly_chart(fig_total, width="stretch")

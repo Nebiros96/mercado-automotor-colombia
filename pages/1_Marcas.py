@@ -5,15 +5,29 @@ from utils.data_loader import cargar_datos
 
 st.set_page_config(page_title="Análisis por Marca", page_icon="🏷️", layout="wide")
 
-st.title("Análisis por Marca")
-
 df = cargar_datos()
 
-# --- Sidebar: selector de marca ---
+# --- Sidebar: selector con buscador ---
 marcas_ordenadas = sorted(df["marca"].unique())
-marca_sel = st.sidebar.selectbox("Seleccioná una marca", marcas_ordenadas)
+
+marca_sel = st.sidebar.selectbox(
+    "Buscar marca",
+    marcas_ordenadas,
+    index=marcas_ordenadas.index("Toyota") if "Toyota" in marcas_ordenadas else 0,
+    placeholder="Escribí para buscar...",
+)
 
 df_marca = df[df["marca"] == marca_sel]
+
+# --- Header con logo ---
+url_logo = df_marca["url_logo"].iloc[0] if pd.notna(df_marca["url_logo"].iloc[0]) else None
+
+col_logo, col_title = st.columns([1, 5])
+with col_logo:
+    if url_logo:
+        st.image(url_logo, width=80)
+with col_title:
+    st.title(marca_sel)
 
 # --- KPIs de la marca ---
 total_marca = df_marca["unidades_vendidas"].sum()
@@ -37,22 +51,21 @@ st.subheader(f"Evolución mensual — {marca_sel} vs. mercado")
 evol_marca = (
     df_marca.groupby(["id_periodo", "año_mes"], as_index=False)["unidades_vendidas"]
     .sum()
-    .rename(columns={"unidades_vendidas": "marca"})
+    .rename(columns={"unidades_vendidas": marca_sel})
 )
 
 evol_mercado = (
     df.groupby(["id_periodo", "año_mes"], as_index=False)["unidades_vendidas"]
     .sum()
-    .rename(columns={"unidades_vendidas": "mercado"})
+    .rename(columns={"unidades_vendidas": "Mercado"})
 )
 
-evol = evol_marca.merge(evol_mercado, on=["id_periodo", "año_mes"])
-evol = evol.sort_values("id_periodo")
+evol = evol_marca.merge(evol_mercado, on=["id_periodo", "año_mes"]).sort_values("id_periodo")
 
 fig_evol = px.line(
     evol.melt(
         id_vars=["id_periodo", "año_mes"],
-        value_vars=["marca", "mercado"],
+        value_vars=[marca_sel, "Mercado"],
         var_name="serie",
         value_name="unidades",
     ),
@@ -61,14 +74,14 @@ fig_evol = px.line(
     color="serie",
     markers=True,
     labels={"año_mes": "Mes", "unidades": "Unidades", "serie": ""},
-    color_discrete_map={"marca": "#1f77b4", "mercado": "#d3d3d3"},
+    color_discrete_map={marca_sel: "#1f77b4", "Mercado": "#d3d3d3"},
 )
 fig_evol.update_layout(yaxis_title="Unidades vendidas", xaxis_title="")
 st.plotly_chart(fig_evol, width="stretch")
 
 st.divider()
 
-# --- Ranking de modelos de la marca ---
+# --- Modelos de la marca ---
 col_left, col_right = st.columns(2)
 
 with col_left:
