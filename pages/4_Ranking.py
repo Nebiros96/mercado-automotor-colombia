@@ -22,7 +22,7 @@ rango = st.sidebar.select_slider(
 marcas_disponibles = ["Todas"] + sorted(df["marca"].unique())
 marca_filtro = st.sidebar.selectbox("Marca", marcas_disponibles)
 
-nivel = st.sidebar.radio("Agrupar por", ["Marca-Modelo", "Marca", "Modelo"])
+nivel = st.sidebar.radio("Agrupar por", ["Marca", "Modelo"])
 
 # --- Aplicar filtros ---
 mask = (df["año_mes"] >= rango[0]) & (df["año_mes"] <= rango[1])
@@ -36,12 +36,7 @@ if df_filtrado.empty:
     st.stop()
 
 # --- Calcular ranking completo ---
-if nivel == "Marca-Modelo":
-    col_group = "marca_modelo"
-elif nivel == "Marca":
-    col_group = "marca"
-else:
-    col_group = "modelo"
+col_group = "marca" if nivel == "Marca" else "marca_modelo"
 
 ranking_completo = (
     df_filtrado.groupby(col_group, as_index=False)
