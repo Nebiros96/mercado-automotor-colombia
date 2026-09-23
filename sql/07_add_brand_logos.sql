@@ -1,51 +1,58 @@
 -- ==========================================
--- ACTUALIZAR LOGOS POR MARCA
+-- LOGOS DE MARCA EN SUPABASE STORAGE
 -- ==========================================
--- Fuente: Tomba Logo API (gratis, sin API key)
--- Formato: https://logo.tomba.io/{dominio}
+-- Bucket público: brand-logos
+-- URL: https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/{archivo}
+--
+-- Los archivos se suben con scripts/upload_brand_logos.py.
+-- Este script crea el bucket, sube assets/logos/ y aplica el UPDATE de abajo.
+-- Ejecutar este SQL a mano antes de subir los archivos deja los logos rotos.
 -- ==========================================
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('brand-logos', 'brand-logos', true)
+ON CONFLICT (id) DO UPDATE SET public = EXCLUDED.public;
+
+DROP POLICY IF EXISTS "Lectura publica logos" ON storage.objects;
+CREATE POLICY "Lectura publica logos"
+ON storage.objects
+FOR SELECT
+TO public
+USING (bucket_id = 'brand-logos');
 
 UPDATE dim_marca SET url_logo = CASE marca
-    -- Marcas globales
-    WHEN 'BMW'        THEN 'https://logo.tomba.io/bmw.com'
-    WHEN 'BYD'        THEN 'https://logo.tomba.io/byd.com'
-    WHEN 'Chevrolet'  THEN 'https://logo.tomba.io/chevrolet.com'
-    WHEN 'Citroën'    THEN 'https://logo.tomba.io/citroen.com'
-    WHEN 'Cupra'      THEN 'https://logo.tomba.io/cupraofficial.com'
-    WHEN 'Ford'       THEN 'https://logo.tomba.io/ford.com'  -- No aparece
-    WHEN 'Honda'      THEN 'https://logo.tomba.io/honda.com'
-    WHEN 'Hyundai'    THEN 'https://logo.tomba.io/hyundai.com'
-    WHEN 'Jeep'       THEN 'https://logo.tomba.io/jeep.com'
-    WHEN 'Kia'        THEN 'https://logo.tomba.io/kia.com'
-    WHEN 'Mazda'      THEN 'https://logo.tomba.io/mazda.com'
-    WHEN 'MG'         THEN 'https://logo.tomba.io/mgmotor.com'  -- Cambiar
-    WHEN 'Nissan'     THEN 'https://logo.tomba.io/nissan.com'  -- Cambiar
-    WHEN 'Peugeot'    THEN 'https://logo.tomba.io/peugeot.com'
-    WHEN 'RAM'        THEN 'https://logo.tomba.io/ramtrucks.com'
-    WHEN 'Renault'    THEN 'https://logo.tomba.io/renault.com'  -- Cambiar
-    WHEN 'Subaru'     THEN 'https://logo.tomba.io/subaru.com'
-    WHEN 'Suzuki'     THEN 'https://logo.tomba.io/suzuki.com'
-    WHEN 'Tesla'      THEN 'https://logo.tomba.io/tesla.com'
-    WHEN 'Toyota'     THEN 'https://logo.tomba.io/toyota.com'
-    WHEN 'Volkswagen' THEN 'https://logo.tomba.io/volkswagen.com'
-
-    -- Marcas chinas / asiáticas
-    WHEN 'Chery'      THEN 'https://logo.tomba.io/cheryinternational.com'
-    WHEN 'Deepal'     THEN 'https://logo.tomba.io/deepal.com'  -- Cambiar
-    WHEN 'Dongfeng'   THEN 'https://logo.tomba.io/dongfeng-global.com'
-    WHEN 'GAC'        THEN 'https://logo.tomba.io/gac-motor.com'
-    WHEN 'Geely'      THEN 'https://logo.tomba.io/geely.com'  -- Cambiar
-    WHEN 'GWM'        THEN 'https://logo.tomba.io/gwm-global.com'
-
-    -- Vehículos comerciales / camiones
-    WHEN 'Foton'      THEN 'https://logo.tomba.io/foton-global.com'
-    WHEN 'JAC'        THEN 'https://logo.tomba.io/jacmotors.com'
-    WHEN 'JMC'        THEN 'https://logo.tomba.io/jmc.com.cn'
-    WHEN 'Kenworth'   THEN 'https://logo.tomba.io/kenworth.com'
-
-    -- Marcas sin logo disponible (revisar manualmente)
-    WHEN 'Daewoo'     THEN NULL
+    WHEN 'BMW'        THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/bmw.png'
+    WHEN 'BYD'        THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/byd.png'
+    WHEN 'Chevrolet'  THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/chevrolet.png'
+    WHEN 'Citroën'    THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/citroen.png'
+    WHEN 'Cupra'      THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/cupra.png'
+    WHEN 'Ford'       THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/ford.png'
+    WHEN 'Honda'      THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/honda.png'
+    WHEN 'Hyundai'    THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/hyundai.png'
+    WHEN 'Jeep'       THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/jeep.png'
+    WHEN 'Kia'        THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/kia.png'
+    WHEN 'Mazda'      THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/mazda.png'
+    WHEN 'MG'         THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/mg.png'
+    WHEN 'Nissan'     THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/Nissan.png'
+    WHEN 'Peugeot'    THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/peugeot.png'
+    WHEN 'RAM'        THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/ram.png'
+    WHEN 'Renault'    THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/renault.png'
+    WHEN 'Subaru'     THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/subaru.png'
+    WHEN 'Suzuki'     THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/suzuki.png'
+    WHEN 'Tesla'      THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/tesla.png'
+    WHEN 'Toyota'     THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/toyota.png'
+    WHEN 'Volkswagen' THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/volkswagen.png'
+    WHEN 'Chery'      THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/chery.png'
+    WHEN 'Deepal'     THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/deepal.png'
+    WHEN 'Dongfeng'   THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/dongfeng.png'
+    WHEN 'GAC'        THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/gac.png'
+    WHEN 'Geely'      THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/geely.png'
+    WHEN 'GWM'        THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/gwm.png'
+    WHEN 'Foton'      THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/foton.png'
+    WHEN 'JAC'        THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/jac.png'
+    WHEN 'JMC'        THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/jmc.png'
+    WHEN 'Kenworth'   THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/kenworth.png'
+    WHEN 'Daewoo'     THEN 'https://mhmyufztulogrljlyyuy.supabase.co/storage/v1/object/public/brand-logos/daewoo.png'
     WHEN 'FRR'        THEN NULL
-
     ELSE NULL
 END;
